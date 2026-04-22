@@ -1,0 +1,26 @@
+FROM internetsystemsconsortium/bind9:9.20
+
+# Ponemos al usuario root para poder instalar cosas
+USER root
+
+# Instalamos dnsmasq
+RUN apk add --no-cache dnsmasq
+
+# Creamos las carpetas de BIND
+RUN mkdir -p /etc/bind/zones /var/cache/bind
+
+# Copiamos TUS archivos de DNS
+COPY named.conf /etc/bind/named.conf
+COPY zones/db.prod.lab.test /etc/bind/zones/db.prod.lab.test
+COPY zones/db.dev.lab.test /etc/bind/zones/db.dev.lab.test
+
+# Copiamos los archivos NUEVOS para el DHCP
+COPY dnsmasq.conf /etc/dnsmasq.conf
+COPY start-services.sh /start-services.sh
+
+# MAGIA AQUÍ: Convertimos el archivo al formato de Linux y le damos permisos
+RUN dos2unix /start-services.sh && chmod +x /start-services.sh
+
+# Le decimos al contenedor que arranque usando nuestro script
+ENTRYPOINT ["/start-services.sh"]
+

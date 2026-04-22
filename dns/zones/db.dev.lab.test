@@ -1,0 +1,15 @@
+$TTL 86400
+@   IN  SOA ns.dev.lab.test. admin.dev.lab.test. (
+        2026031101 ; Serial
+        3600       ; Refresh
+        1800       ; Retry
+        604800     ; Expire
+        86400      ; Minimum
+)
+
+@           IN  NS  ns.dev.lab.test.
+ns          IN  A   172.20.0.10
+dns         IN  A   172.20.0.10
+web         IN  A   172.40.0.2
+app         IN  A   172.40.0.2
+firewall    IN  A   172.40.0.3

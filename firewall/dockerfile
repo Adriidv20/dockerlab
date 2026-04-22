@@ -1,0 +1,11 @@
+FROM alpine:3.20
+
+# Añadimos iptables y wireguard-tools
+RUN apk add --no-cache iptables wireguard-tools
+
+COPY firewall-init.sh /firewall-init.sh
+
+# Damos permisos de ejecución al script
+RUN chmod +x /firewall-init.sh
+
+CMD ["sh", "/firewall-init.sh"]
