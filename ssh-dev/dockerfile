@@ -1,0 +1,21 @@
+FROM ubuntu:24.04
+ENV DEBIAN_FRONTEND=noninteractive
+
+# Instalar OpenSSH, Google Authenticator y dos2unix
+RUN apt-get update && apt-get install -y openssh-server libpam-google-authenticator dos2unix \
+    && mkdir -p /run/sshd \
+    && useradd -m -s /bin/bash john \
+    && echo 'john:password123' | chpasswd
+
+# Truco para Ubuntu 24.04: Poner nuestra config en la carpeta prioritaria para que no se sobreescriba
+RUN echo "KbdInteractiveAuthentication yes" > /etc/ssh/sshd_config.d/00-custom.conf && \
+    echo "UsePAM yes" >> /etc/ssh/sshd_config.d/00-custom.conf && \
+    echo "AuthenticationMethods keyboard-interactive" >> /etc/ssh/sshd_config.d/00-custom.conf
+
+# Configurar PAM para exigir Google Authenticator
+RUN sed -i 's/@include common-auth/@include common-auth\nauth required pam_google_authenticator.so/' /etc/pam.d/sshd
+
+COPY init.sh /init.sh
+RUN dos2unix /init.sh && chmod +x /init.sh
+
+CMD ["/init.sh"]

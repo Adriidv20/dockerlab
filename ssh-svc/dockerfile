@@ -1,0 +1,18 @@
+FROM alpine:3.20
+
+# Instalamos SSH y herramientas
+RUN apk add --no-cache openssh dos2unix \
+    && ssh-keygen -A \
+    && adduser -D john \
+    && passwd -u john \
+    && mkdir -p /home/john/.ssh
+
+# Deshabilitamos contraseñas, activamos claves públicas y aceptamos RSA
+RUN sed -i 's/^#PasswordAuthentication yes/PasswordAuthentication no/' /etc/ssh/sshd_config \
+    && sed -i 's/^#PubkeyAuthentication yes/PubkeyAuthentication yes/' /etc/ssh/sshd_config \
+    && echo "PubkeyAcceptedAlgorithms +ssh-rsa" >> /etc/ssh/sshd_config
+
+COPY init.sh /init.sh
+RUN dos2unix /init.sh && chmod +x /init.sh
+
+CMD ["/init.sh"]
